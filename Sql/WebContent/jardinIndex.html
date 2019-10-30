@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Jardin Bar</title>
+    <body onload="myFunction()"></body>
+    <style>
+        .container{
+            width: 100%;
+            overflow: auto;
+            position: absolute;
+            top: 138px;
+            bottom: 0;
+            height: auto;
+        }
+
+        #center_div{ 
+            border-style: solid;
+            float: left;
+            height: 100%;
+            width: 80%;
+            border-color: aquamarine;
+        }
+
+        #center_div div{ 
+            display: inline-block;
+            width: 20%;
+            height: 25%;
+            margin: 3px;
+            border-style: dotted;
+            overflow: auto;
+        }
+
+        #bar_right{
+            border-style: solid;
+            float: right;
+            height: 100%;
+            width: 18%;
+            border-color: aquamarine;
+        }
+
+        #bar_right ul,li{
+            text-align: center;
+            list-style-type: none;
+        }
+
+        #center_div li{
+            background-color: blue;
+            float: left;
+        }
+
+        
+        #center_div input{
+            width: 23px;
+            float: left;
+        }
+
+        #center_div p{
+            width: 10px;
+            margin: 0px;
+        }
+
+    </style>
+    <script>
+
+        var arrayitem = [];
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+        
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            console.log(ev.target.id);
+        }
+        
+        function drop(ev) {
+            var event1;
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            console.log(ev.target.id);
+            console.log(data);
+            //ev.target.appendChild(document.getElementById(data));
+            var nodeCopy = document.getElementById(data).cloneNode(true);
+            ev.target.appendChild(nodeCopy);
+            var oldItem = ev.target;
+            var input = document.createElement("input");
+            input.type = "text";
+            input.id = "inp_"+data+"_"+ev.target.id;
+            input.addEventListener('blur',
+                function() {
+                    console.log(input.value);
+                    input2.value=arrayitem[0]*input.value;
+                }, false);
+            ev.target.appendChild(input);
+            var input2 = document.createElement("input");
+            input2.type = "text";
+            input2.id = "inp2_"+data+"_"+ev.target.id;
+            input2.style.width = "52px";
+            ev.target.appendChild(input2);
+            var x = document.getElementById(ev.target.id).childElementCount;
+            if (x>2){
+                var checkimg=(ev.target).getElementsByTagName("img");
+                (checkimg[0]).style.opacity= '1';
+                (checkimg[0]).onclick= function() {
+                    console.log("check activado");
+                }
+            }
+        }
+
+        function onblur1(ev){
+            console.log("onblurrr");
+            console.log(ev.target.id);
+        }
+
+        function myFunction() {
+            var i = 1;
+            var dindiv="";
+            while (i <= 10) {
+                dindiv = document.createElement("DIV");
+                dindiv.id = "div"+i;
+                dindiv.ondrop = "drop(event)";
+                dindiv.ondragover="allowDrop(event)";
+                document.getElementById("center_div").appendChild(dindiv);
+                imgcheck = document.createElement("IMG");
+                imgcheck.id = "check"+i;
+                imgcheck.setAttribute("src", "success.png");
+                imgcheck.style.position = "fixed";
+                imgcheck.style.marginLeft = "14%";
+                imgcheck.style.opacity= '0.5';
+                document.getElementById("div"+i).appendChild(imgcheck);
+                var p = document.createElement("P");
+                document.getElementById("div"+i).appendChild(p);
+                p.innerText = i;
+                i++;
+            }
+            myFunction2();
+            loadItemArray();
+            connect();
+        }
+
+        function myFunction2() {
+            var i = 1;
+            var para="";
+            while (i <= 10) {
+                para = document.createElement("LI");
+                para.id = "li"+i;
+                para.setAttribute('size',6);
+                para.innerHTML = "This is a paragraph.";
+                para.ondrop = "drop(event)";
+                para.draggable="true";
+                //para.ondragstart="drag(event)";
+                para.ondragstart= function() {
+                    drag(event);
+                }
+                para.ondragover="allowDrop(event)";
+                document.getElementById("drag_list_ul").appendChild(para);
+                i++;
+            }
+        }
+
+        function connect(){
+            const url = "http://localhost:8080/Sql/rest/MainRestBar/conecta/";
+            // The data we are going to send in our request
+            console.log ("Monstruo");
+            let data = {
+                query : "conecta"
+            };
+            let fetchData = { 
+                method: "POST", 
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json' 
+                }
+            };
+            console.log(fetchData.body);
+            fetch(url, fetchData)
+            .then(function(resp) {
+                // Handle response you get from the server
+                console.log ("estoy aca");
+                console.log (resp);
+                return resp.json;
+
+            })
+            .then(function(data) {
+                console.log(data.conexion);
+                window.num=1;
+            })
+            .catch(function(error) {
+                console.log(error);
+                console.log(JSON.stringify(error));
+            });
+        }
+
+        function loadItemArray() {
+            var i=0;
+            while (i<=9){
+                arrayitem.push(58);
+                i++;
+            }
+
+        }
+
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div id="center_div" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+        </div>
+
+        <div id="bar_right" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <ul id="drag_list_ul">
+
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
